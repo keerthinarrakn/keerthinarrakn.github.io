@@ -1,0 +1,265 @@
+
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<style>
+
+.area {
+  fill: steelblue;
+  clip-path: url(#clip);
+}
+
+.zoom {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
+}
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.browser text {
+  text-anchor: end;
+}
+.focus circle {
+        fill: black;
+        stroke: white;
+    }
+.overlay {
+        fill: none;
+        pointer-events: all;
+    }
+
+  div.scrollmenu {
+    background-color: #333;
+    overflow: auto;
+    white-space: nowrap;
+}
+
+div.scrollmenu a {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 14px;
+    text-decoration: none;
+}
+
+div.scrollmenu a:hover {
+    background-color: #555;
+}
+</style>
+<title> Narrative Visualization</title>
+</head>
+
+<body onload="loadchart()">
+
+<div class="scrollmenu">
+  <a href="index.html">Home</a>
+  <a href="furniture.html">Furniture</a>
+  <a href="office.html">Office Supplies</a>
+  <a href="tech.html">Technology</a>
+  ...
+</div>
+
+<br/>
+<div>
+ Range  <select id="quan" onChange="loadchart()"> 
+  <option value="30">Monthly</option>
+  <option value="7">Weekly</option>
+  <option value="1">Daily</option>
+</select> </div> <br/></br/>
+
+
+<svg width="960" height="500"></svg>
+<script>
+
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 40, bottom: 110, left: 60},
+    margin2 = {top: 430, right: 20, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    height2 = +svg.attr("height") - margin2.top - margin2.bottom;
+
+var parseDate = d3.timeParse("%b %Y");
+var bisectDate = d3.bisector(function(d) {
+    return d.Date;
+}).left;
+
+
+var x = d3.scaleTime().range([0, width]),
+    x2 = d3.scaleTime().range([0, width]),
+    y = d3.scaleLinear().range([height, 0]),
+    y2 = d3.scaleLinear().range([height2, 0]);
+
+var xAxis = d3.axisBottom(x),
+    xAxis2 = d3.axisBottom(x2),
+    yAxis = d3.axisLeft(y);
+
+var brush = d3.brushX()
+    .extent([[0, 0], [width, height2]])
+    .on("brush end", brushed);
+
+var zoom = d3.zoom()
+    .scaleExtent([1, Infinity])
+    .translateExtent([[0, 0], [width, height]])
+    .extent([[0, 0], [width, height]])
+    .on("zoom", zoomed);
+
+var area = d3.area()
+    .curve(d3.curveMonotoneX)
+    .x(function(d) { return x(d.Date); })
+    .y0(height)
+    .y1(function(d) { return y(d.Quantity); });
+
+var area2 = d3.area()
+    .curve(d3.curveMonotoneX)
+    .x(function(d) { return x2(d.Date); })
+    .y0(height2)
+    .y1(function(d) { return y2(d.Quantity); });
+
+svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+  .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+var focus = svg.append("g")
+    .attr("class", "focus")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var context = svg.append("g")
+    .attr("class", "context")
+    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+function loadchart() {
+
+var sel = document.getElementById("quan") ;
+var opt = sel.options[sel.selectedIndex];
+
+d3.csv("tech.csv", type, function(error, data) {
+  if (error) throw error;
+
+
+  x.domain(d3.extent(data, function(d) { return d.Date; }));
+  y.domain([0, d3.max(data, function(d) { return d.Quantity; })]);
+  x2.domain(x.domain());
+  y2.domain(y.domain());
+
+  focus.append("circle")
+  .attr("r", 5);
+
+  focus.append("text")
+  .attr("x", 10)
+  .attr("dy", ".35em")
+  .style("font-size",20);
+
+  focus.append("path")
+      .datum(data)
+      .attr("class", "area")
+      .attr("d", area)
+      ;
+
+
+  function mousemove() {
+		var x0 = x.invert(d3.mouse(this)[0]),
+		i = bisectDate(data, x0, 1),
+		d0 = data[i - opt.value],
+		d1 = data[i],
+		d= x0 - d0.Date > d1.Date - x0 ? d1 : d0;
+        var depl=parseFloat(d['Quantity']);
+        var dep0=parseFloat(d0['Quantity']);
+        //focus.attr("transform", "translate(" + x(d.Date) + "," + (500 - margin.top - margin.bottom)*depl/100+ ")");
+        focus.select("text").text( opt.value + " days quantity " + Math.round((depl-dep0)*100/dep0, 1) + "%" + " Current Quantity - "+ depl + " Previous Quantity - " + dep0 + " Current day -"+ d1.Date.getDay() +"/" + (d1.Date.getMonth()+1) +"/"+d1.Date.getFullYear() );
+  }
+
+  focus.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  focus.append("g")
+      .attr("class", "axis axis--y")
+      .call(yAxis);
+
+  context.append("path")
+      .datum(data)
+      .attr("class", "area")
+      .attr("d", area2);
+
+  context.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height2 + ")")
+      .call(xAxis2);
+
+  context.append("g")
+      .attr("class", "brush")
+      .call(brush)
+      .call(brush.move, x.range());
+
+ svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", width)
+    .attr("y", height - 6)
+    .text("Drilled Up / Down");
+  svg.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("y", 6)
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .text("Quantity");
+
+
+  svg.append("rect")
+      .attr("class", "zoom")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .call(zoom)
+      .on("mouseover", function() {
+                    focus.style("display", null);
+                })
+     .on("mouseout", function() {
+                    focus.style("display", null);
+                    focus.select("text").text("");
+                })
+                .on("mousemove", mousemove);
+
+
+});
+}
+
+
+function brushed() {
+  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return;
+  var s = d3.event.selection || x2.range();
+  x.domain(s.map(x2.invert, x2));
+  focus.select(".area").attr("d", area);
+  focus.select(".axis--x").call(xAxis);
+  svg.select(".zoom").call(zoom.transform, d3.zoomIdentity
+      .scale(width / (s[1] - s[0]))
+      .translate(-s[0], 0));
+}
+
+function zoomed() {
+  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
+  var t = d3.event.transform;
+  x.domain(t.rescaleX(x2).domain());
+  focus.select(".area").attr("d", area);
+  focus.select(".axis--x").call(xAxis);
+  context.select(".brush").call(brush.move, x.range().map(t.invertX, t));
+}
+
+
+function type(d, i, columns) {
+  d.Date = new Date(d.Date);
+  d.Quantity = +d.Quantity;
+  return d;
+}
+
+</script>
+</body>
+</html>

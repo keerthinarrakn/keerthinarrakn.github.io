@@ -1,0 +1,104 @@
+<html>
+  <head>
+    <title>Narrative Visualization </title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+  </head>
+  <style>
+  div.scrollmenu {
+    background-color: #333;
+    overflow: auto;
+    white-space: nowrap;
+}
+
+div.scrollmenu a {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    text-decoration: none;
+}
+
+div.scrollmenu a:hover {
+    background-color: #555;
+}
+</style>
+  <body>
+  <div class="scrollmenu">
+  <a href="index.html">Home</a>
+  <a href="furniture.html">Furniture</a>
+  <a href="office.html">Office Supplies</a>
+  <a href="tech.html">Technology</a>
+  ...
+</div>
+    <h1>D3 Narrative Visualization Project</h1>
+		<div>
+		<p>This narrative visualization story uses Super Store dataset.
+		I have tried the drill down hybrid structure for this vizualization.</p>
+		<p>This vizualization has three scenes in the narrative story.
+</p>
+<ul>
+	<li>Scene 1 shows the Quantity of orders made under <b>Furniture</b> category</li>
+	<li>Scene 2 shows the Quantity of orders made under <b>Office Supplies</b> category</li>
+	<li>Scene 3 shows the Quantity of orders made under <b>Technology</b> category</li>
+</ul>
+<p> Quantity of each Category over Days, Weeks, Months explained using d3. It helps in understanding which category has sold the most quantity.
+This will help the store to keep up the sales in the profitable category and improve sales in categories with low sales. 
+</p>
+	</div>
+	<div>
+		<h4>Parameters</h4>
+		<ul>
+			<li><b>Order Date</b> - This visualization uses date as a parameter to display the area chart. Parameter values are passed in either from the filter or zoom events.
+			<li><b>Range for quantity</b> - Option to choose various range to see the quantity sold.
+			<li><b>Quantity</b> - Quantity sold for a given category and a selected date range.
+			</ul>
+	</div>
+	<div>
+		<h4>Events</h4>
+		<ul>
+			<li><b>Zoom Out</b> - Zoom out event, summarizes the data. For instance user can zoom out from April 2014 to year 2017 to view yearly sales instead of monthly sale trend.
+			<li><b>Zoom In</b> - Zoom in event, drills down the data. For instance user can zoom in from 2014 to a particular day to view daily sales.
+			<li><b>Filter</b> - Context filter is present below the main chart. This filters data based on the date range provided by the user.
+			<li><b>Filter Move</b> - This event moves the fixed data range up or down by sliding the context filter.
+		</ul>
+	</div>
+	<div>
+		<h4>Triggers</h4>
+		<ul>
+			<li><b>Zoom & Brush Trigger</b> - Mouse drag inside the chart or adjusting the date filter boundary in context filter will fire this trigger.
+			<li><b>On mouse over Trigger</b> - This trigger will show the tooltip data on mouse over.
+		</ul>
+	</div>
+	<div>
+		<h4>Annotations</h4>
+		<ul>
+			<li><b>Tool Tip</b> - This tooltip shows quantity where the mouse pointer is.
+			<li><b>Axis Labels</b> - Annotates what is the x-axis and y-axis for the chart.
+		</ul>
+	</div>
+	<div>
+		<h4>Drill Down </h4>
+		<ul>
+			<li> This story uses zoom out and zoom in feature of D3 to drill down the data. </li>
+		</ul>
+	</div>
+	<div>
+		<h4>Future Improvements</h4>
+		<ul>
+			<li> I would like to further drill down and view the sub-categories as well.</li>
+		</ul>
+	</div>
+	<div>
+		<h4>Deployment</h4>
+		<ul>
+			<li> This project is hosted in github.io</li>
+		</ul>
+	</div>
+	<div>
+	   <p>The top navigation bar has links to the three scenes.</p>
+	</div>
+  </body>
+</html>
+
+
+
