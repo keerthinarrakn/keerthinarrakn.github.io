@@ -56,8 +56,8 @@ body {
 
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script>
-d3.csv('data.csv', function(day_data) {
-  var formatDate = d3.time.format("%Y-%m-%d");
+d3.csv('furniture.csv', function(day_data) {
+  var formatDate = d3.time.format("%m-%d-%Y");
   var bisectDate = d3.bisector(function(d) { return formatDate.parse(d['date']); }).left;
 
   // fix those integers
