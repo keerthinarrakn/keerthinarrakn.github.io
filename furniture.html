@@ -59,9 +59,9 @@ div.scrollmenu a:hover {
 
 <div class="scrollmenu">
   <a href="index.html">Home</a>
-  <a href="furniture.html">Furniture</a>
-  <a href="office.html">Office Supplies</a>
-  <a href="tech.html">Technology</a>
+  <a href="spy.html">S&P500 ETF</a>
+  <a href="xle.html">Energy ETF</a>
+  <a href="xlb.html">Materials ETF</a>
   ...
 </div>
 <br/>
@@ -111,13 +111,13 @@ var area = d3.area()
     .curve(d3.curveMonotoneX)
     .x(function(d) { return x(d.date); })
     .y0(height)
-    .y1(function(d) { return y(d.Quantity); });
+    .y1(function(d) { return y(d.price); });
 
 var area2 = d3.area()
     .curve(d3.curveMonotoneX)
     .x(function(d) { return x2(d.date); })
     .y0(height2)
-    .y1(function(d) { return y2(d.Quantity); });
+    .y1(function(d) { return y2(d.price); });
 
 svg.append("defs").append("clipPath")
     .attr("id", "clip")
@@ -139,12 +139,12 @@ var sel =   document.getElementById("pct") ;
 var opt = sel.options[sel.selectedIndex];
 
 
-d3.csv("furniture.csv", type, function(error, data) {
+d3.csv("spy.csv", type, function(error, data) {
   if (error) throw error;
 
 
   x.domain(d3.extent(data, function(d) { return d.date; }));
-  y.domain([0, d3.max(data, function(d) { return d.Quantity; })]);
+  y.domain([0, d3.max(data, function(d) { return d.price; })]);
   x2.domain(x.domain());
   y2.domain(y.domain());
 
@@ -169,10 +169,10 @@ d3.csv("furniture.csv", type, function(error, data) {
 		d0 = data[i - opt.value],
 		d1 = data[i],
 		d= x0 - d0.date > d1.date - x0 ? d1 : d0;
-        var depl=parseFloat(d['Quantity']);
-        var dep0=parseFloat(d0['Quantity']);
+        var depl=parseFloat(d['price']);
+        var dep0=parseFloat(d0['price']);
         //focus.attr("transform", "translate(" + x(d.date) + "," + (500 - margin.top - margin.bottom)*depl/100+ ")");
-        focus.select("text").text( opt.value + " days percent movement  " + Math.round((depl-dep0)*100/dep0, 1) + "%" + " Current Price -"+ depl + " Prior price-" + dep0 + " Current day -"+ d1.date );
+        focus.select("text").text( opt.value + " days percent movement  " + Math.round((depl-dep0)*100/dep0, 1) + "%" + " Current Price -"+ depl + " Prior price-" + dep0 + " Current day -"+ d1.date.getDay() +"/" + (d1.date.getMonth()+1) +"/"+d1.date.getFullYear() );
   }
 
   focus.append("g")
@@ -259,7 +259,7 @@ function zoomed() {
 
 function type(d, i, columns) {
   d.date = new Date(d.Date);
-  d.Quantity = +d.Quantity;
+  d.price = +d.price;
   return d;
 }
 
